@@ -1,9 +1,17 @@
+
+
 ## Version
+
+Apple only (Mac arm)
+✔ Python = main code
+✔ AppleScript = launcher
 
 V12 - Stable release
 # VirtualDJ Chords Injection
 
 AI-powered chord detection and injection tool for VirtualDJ `database.xml`.
+
+![Chord Detection Preview](docs/preview.png)
 
 This tool analyzes your audio files (AIFF, WAV, FLAC, etc.), applies fine pitch detection and correction to **A=440 Hz**, and writes chords as POI markers directly into VirtualDJ.
 
@@ -80,8 +88,10 @@ Replace `YOUR_USERNAME` with your macOS username.
 
 1. Double-click:
 
-VDJ Chord Injector V12.applescript
+CHORD-DETECTION-VIRTUALDJ-V12.scpt
 
+- The AppleScript file and the Python (.py) file must be located in the same folder for the script to run correctly
+  
 2. Select your `database.xml`
 
 3. Choose analysis mode:
@@ -94,6 +104,7 @@ VDJ Chord Injector V12.applescript
 ---
 
 ## VirtualDJ Usage Notes ⚠️
+- Tracks should already be analyzed by VirtualDJ beforehand (BPM, grid, etc.) 
 
 ### Do not open VirtualDJ during analysis
 
