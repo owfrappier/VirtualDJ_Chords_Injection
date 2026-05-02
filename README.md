@@ -1,9 +1,13 @@
+
+
 ## Version
 
 V12 - Stable release
 # VirtualDJ Chords Injection
 
 AI-powered chord detection and injection tool for VirtualDJ `database.xml`.
+
+![Chord Detection Preview](docs/preview.png)
 
 This tool analyzes your audio files (AIFF, WAV, FLAC, etc.), applies fine pitch detection and correction to **A=440 Hz**, and writes chords as POI markers directly into VirtualDJ.
 
