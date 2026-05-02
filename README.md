@@ -22,6 +22,13 @@ This tool analyzes your audio files (AIFF, WAV, FLAC, etc.), applies fine pitch 
 - Optimized for macOS (Apple Silicon)
 
 ---
+## VirtualDJ Compatibility
+
+Tested with:
+
+- VirtualDJ 2026 > BUILD 9295 (2026-04-19)
+
+⚠️ Older versions may not support all POI features or database structure.
 
 ## Requirements
 
