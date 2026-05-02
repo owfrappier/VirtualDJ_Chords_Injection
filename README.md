@@ -7,6 +7,7 @@ Apple only (Mac arm)
 ✔ AppleScript = launcher
 ---------------------------------------------
 Changelog :
+V13.1 : improve thirds m/M detection
 🔥 V13 – BeatGrid-Aware Chord Detection (DJ Clean Engine)
 
 🎯 Major Update
@@ -120,7 +121,7 @@ Replace `YOUR_USERNAME` with your macOS username.
 
 1. Double-click:
 
-CHORD-DETECTION-VIRTUALDJ-V12.scpt
+CHORD-DETECTION-VIRTUALDJ.scpt
 
 - The AppleScript file and the Python (.py) file must be located in the same folder for the script to run correctly
   
