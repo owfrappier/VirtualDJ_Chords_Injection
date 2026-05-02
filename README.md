@@ -2,6 +2,10 @@
 
 ## Version
 
+Apple only (Mac arm)
+✔ Python = main code
+✔ AppleScript = launcher
+
 V12 - Stable release
 # VirtualDJ Chords Injection
 
