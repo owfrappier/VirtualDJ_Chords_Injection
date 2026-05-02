@@ -1,3 +1,6 @@
+## Version
+
+V12 - Stable release
 # VirtualDJ Chords Injection
 
 AI-powered chord detection and injection tool for VirtualDJ `database.xml`.
