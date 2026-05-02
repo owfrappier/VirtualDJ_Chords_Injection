@@ -102,6 +102,7 @@ VDJ Chord Injector V12.applescript
 ---
 
 ## VirtualDJ Usage Notes ⚠️
+- Tracks should already be analyzed by VirtualDJ beforehand (BPM, grid, etc.) 
 
 ### Do not open VirtualDJ during analysis
 
