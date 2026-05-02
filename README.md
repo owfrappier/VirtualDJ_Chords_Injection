@@ -25,6 +25,7 @@ This tool analyzes your audio files (AIFF, WAV, FLAC, etc.), applies fine pitch 
 
 ## Requirements
 
+- VirtualDJ 2026 > BUILD 9295 (2026-04-19)
 - macOS (Apple Silicon recommended)
 - Python 3.10+
 - VirtualDJ
