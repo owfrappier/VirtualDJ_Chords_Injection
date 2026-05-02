@@ -5,8 +5,40 @@
 Apple only (Mac arm)
 ✔ Python = main code
 ✔ AppleScript = launcher
+---------------------------------------------
+Changelog :
+🔥 V13 – BeatGrid-Aware Chord Detection (DJ Clean Engine)
 
+🎯 Major Update
+
+This version introduces VirtualDJ BeatGrid integration (fixed & variable BPM) to significantly improve chord timing accuracy and musical relevance.
+
+⸻
+
+🧠 New Features
+
+🎧 BeatGrid Integration (VirtualDJ XML)
+
+* Supports both:
+    * ✔ Fixed BPM (Bpm + Phase)
+    * ✔ Variable BPM (fluid) (BeatGrid=...)
+* Automatically extracts beat positions from VirtualDJ database
+* Falls back to librosa beat detection if unavailable
+
+👉 Result: chords are now aligned with actual DJ beat structure
+
+⸻
+
+⚡ Improved Timing Accuracy
+
+* Chords are snapped to:
+    * nearest beat (with tolerance)
+    * real musical grid instead of estimated rhythm
+* Much better coherence for DJ mixing & cueing
 V12 - Stable release
+
+-------------------------------------------------------
+
 # VirtualDJ Chords Injection
 
 AI-powered chord detection and injection tool for VirtualDJ `database.xml`.
