@@ -370,8 +370,10 @@ By using this tool, you agree that:
 - AIFF ✔ (best)
 - WAV ✔
 - FLAC ✔
-- M4A / AAC ⚠️ (slower, less accurate)
+- ALAC ⚠️ (slower)
 
+MP3 ⚠️ (lossy, good but less accurate)
+M4A / AAC ⚠️ (lossy, slower decoding, less accurate)
 ---
 
 ## Tested Environment
