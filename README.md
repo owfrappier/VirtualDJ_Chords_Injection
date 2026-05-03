@@ -110,11 +110,12 @@ python -c "import librosa, numpy"
 
 ## AppleScript Python Path
 
-Make sure your AppleScript uses this Python path:
+Make sure to have this kind of Python path:
 
 /Users/YOUR_USERNAME/.venvs/audio312/bin/python
 
-Replace `YOUR_USERNAME` with your macOS username.
+Applescript auto detect YOUR_USERNAME :
+property pythonBin : "/Users/" & (short user name of (system info)) & "/.venvs/audio312/bin/python"
 
 ---
 
