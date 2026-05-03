@@ -505,9 +505,9 @@ def analyze_chords(audio_path, beat_info=None):
     MAJ7_TRIAD_MARGIN = 0.075
     MICRO_MAJ7_SEC = 0.35
     THIRD_MIN_RATIO = 0.42
-    DIM_REQUIRED_RATIO = 0.46
-    AUG_REQUIRED_RATIO = 0.46
-    DIM_AUG_BOOST = 0.055
+    DIM_REQUIRED_RATIO = 0.36
+    AUG_REQUIRED_RATIO = 0.36
+    DIM_AUG_BOOST = 0.085
 
     def note_name(pc):
         return NOTE_NAMES_FLAT[pc] if PREFER_FLATS else NOTE_NAMES_SHARP[pc]
@@ -612,17 +612,17 @@ def analyze_chords(audio_path, beat_info=None):
                 if suffix == 'dim':
                     if min3_e < root_e * THIRD_MIN_RATIO: continue
                     if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
-                    if fifth_e > dim5_e * 0.95: continue
+                    if fifth_e > dim5_e * 1.15: continue
                 if suffix == 'dim7':
                     dim7_e = float(vec[(root+9)%12])
                     if min3_e < root_e * THIRD_MIN_RATIO: continue
                     if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
                     if dim7_e < max(root_e, min3_e) * 0.40: continue
-                    if fifth_e > dim5_e * 0.95: continue
+                    if fifth_e > dim5_e * 1.15: continue
                 if suffix == 'aug':
                     if maj3_e < root_e * THIRD_MIN_RATIO: continue
                     if aug5_e < max(root_e, maj3_e) * AUG_REQUIRED_RATIO: continue
-                    if fifth_e > aug5_e * 0.95: continue
+                    if fifth_e > aug5_e * 1.15: continue
                 tmpl = np.zeros(12)
                 for interval in intervals: tmpl[(root + interval) % 12] = 1.0
                 tmpl[root] += ROOT_BONUS; tmpl[(root+7)%12] += FIFTH_BONUS
