@@ -92,9 +92,9 @@ Tested with:
 
 This AppleScript expects Python to be installed at:
 
-```applescript
+
 property pythonBin : "/Users/" & (short user name of (system info)) & "/.venvs/audio312/bin/python"
-```
+
 
 So you must create the Python environment exactly here:
 
