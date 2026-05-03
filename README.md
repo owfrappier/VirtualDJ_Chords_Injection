@@ -48,6 +48,7 @@ AI-powered chord detection and injection tool for VirtualDJ `database.xml`.
 ![Chord Detection Preview](docs/preview.png)
 
 This tool analyzes your audio files (AIFF, WAV, FLAC, etc.), applies fine pitch detection and correction to **A=440 Hz**, and writes chords as POI markers directly into VirtualDJ.
+It also creates an automatic fine pitch POI so tracks can be played closer to A=440 Hz, making them easier to use with external instruments such as synths, VSTs, or piano.
 
 ---
 
