@@ -92,9 +92,9 @@ Tested with:
 
 This AppleScript expects Python to be installed at:
 
-```applescript
+
 property pythonBin : "/Users/" & (short user name of (system info)) & "/.venvs/audio312/bin/python"
-```
+
 
 So you must create the Python environment exactly here:
 
@@ -203,7 +203,14 @@ python3 -m venv ~/.venvs/audio312
 source ~/.venvs/audio312/bin/activate
 pip install numpy scipy librosa soundfile
 ```
+or use this file :
+### Quick install
 
+```bash
+xattr -d com.apple.quarantine install-python-requirements.sh 2>/dev/null || true
+chmod +x install-python-requirements.sh
+./install-python-requirements.sh
+```
 ---
 
 ## 🔒 macOS Permissions (IMPORTANT)
