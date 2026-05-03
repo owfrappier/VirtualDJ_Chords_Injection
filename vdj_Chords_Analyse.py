@@ -609,16 +609,26 @@ def analyze_chords(audio_path, beat_info=None):
                     if dom7_e < max(root_e, min3_e) * M7_REQUIRED_RATIO: continue
                 if suffix == '6' and maj3_e < root_e * THIRD_MIN_RATIO: continue
                 if suffix == 'm6' and min3_e < root_e * THIRD_MIN_RATIO: continue
+                
                 if suffix == 'dim':
-                    if min3_e < root_e * THIRD_MIN_RATIO: continue
-                    if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
-                    if fifth_e > dim5_e * 1.15: continue
+                    if min3_e < root_e * 0.32:
+                        continue
+                    if dim5_e < max(root_e, min3_e) * 0.32:
+                        continue
+                    if fifth_e > dim5_e * 1.15:
+                        continue
+
                 if suffix == 'dim7':
-                    dim7_e = float(vec[(root+9)%12])
-                    if min3_e < root_e * THIRD_MIN_RATIO: continue
-                    if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
-                    if dim7_e < max(root_e, min3_e) * 0.40: continue
-                    if fifth_e > dim5_e * 1.15: continue
+                    dim7_e = float(vec[(root + 9) % 12])
+                    if min3_e < root_e * 0.32:
+                        continue
+                    if dim5_e < max(root_e, min3_e) * 0.32:
+                        continue
+                    if dim7_e < max(root_e, min3_e) * 0.30:
+                        continue
+                    if fifth_e > dim5_e * 1.15:
+                        continue
+      
                 if suffix == 'aug':
                     if maj3_e < root_e * THIRD_MIN_RATIO: continue
                     if aug5_e < max(root_e, maj3_e) * AUG_REQUIRED_RATIO: continue
@@ -631,7 +641,23 @@ def analyze_chords(audio_path, beat_info=None):
                 tmpl = tmpl / (np.linalg.norm(tmpl) + 1e-9)
                 score = float(np.dot(vec, tmpl)) * weight
                 if suffix.startswith('m'): score += MINOR_BIAS
-                if suffix in ('dim','dim7','aug'): score += DIM_AUG_BOOST
+                
+                # Si une quinte diminuée est plus forte que la quinte juste,
+                # on évite que le mineur classique gagne à tort.
+                if suffix == 'm' and dim5_e > fifth_e * 1.05:
+                    score -= 0.10
+                
+                if suffix in ('dim', 'dim7'):
+                # Boost spécifique diminués : évite qu'ils soient absorbés par m / inversions.
+                    if min3_e > root_e * 0.32 and dim5_e > root_e * 0.32:
+                        score += 0.12
+                    else:
+                        score += DIM_AUG_BOOST
+
+                if suffix == 'aug':
+                    score += DIM_AUG_BOOST
+                
+     
                 chord_pcs = [(root+x)%12 for x in intervals]
                 outside = sum(vec[pc] for pc in range(12) if pc not in chord_pcs)
                 score -= outside * OUTSIDE_NOTE_PENALTY
