@@ -7,6 +7,7 @@ Apple only (Mac arm)
 ✔ AppleScript = launcher
 ---------------------------------------------
 Changelog :
+V13.2 : Make Python path portable using user home (~/.venvs/audio312)
 V13.1 : improve thirds m/M detection
 🔥 V13 – BeatGrid-Aware Chord Detection (DJ Clean Engine)
 
