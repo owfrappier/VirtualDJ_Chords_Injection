@@ -55,6 +55,14 @@ It also creates an automatic fine pitch POI so tracks can be played closer to A=
 ## ⚠️ macOS Requirement
 
 ⚠️ **macOS Full Disk Access is required for AppleScript to work properly**
+VirtualDJ 2026 > BUILD 9295 (2026-04-19)
+macOS (Apple Silicon recommended)
+Python 3.10+
+VirtualDJ
+
+Make sure to have this kind of Python path:
+
+/Users/YOUR_USERNAME/.venvs/audio312/bin/python
 
 ---
 
@@ -72,16 +80,11 @@ It also creates an automatic fine pitch POI so tracks can be played closer to A=
 
 Tested with:
 
-- VirtualDJ 2026 > BUILD 9295 (2026-04-19)
+- VirtualDJ 2026 > BUILD 9295 (2026-04-19) (New Fluid Database.xml synthax)
 
 ⚠️ Older versions may not support all POI features or database structure.
 
-## Requirements
 
-- VirtualDJ 2026 > BUILD 9295 (2026-04-19)
-- macOS (Apple Silicon recommended)
-- Python 3.10+
-- VirtualDJ
 
 ------------------------------------------------------------------------------------------------------------
 
