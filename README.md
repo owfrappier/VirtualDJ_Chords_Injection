@@ -83,30 +83,151 @@ Tested with:
 - Python 3.10+
 - VirtualDJ
 
+------------------------------------------------------------------------------------------------------------
+
+## macOS Terminal Installation Guide
+
+This AppleScript expects Python to be installed at:
+
+```applescript
+property pythonBin : "/Users/" & (short user name of (system info)) & "/.venvs/audio312/bin/python"
+```
+
+So you must create the Python environment exactly here:
+
+```text
+~/.venvs/audio312
+```
+
 ---
 
-## Python Setup (Recommended)
+### 1. Install Homebrew
 
-This project uses a dedicated Python virtual environment.
+Copy and paste:
 
-### 1. Create a virtual environment
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
+Then (Apple Silicon Macs):
+
+```bash
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+---
+
+### 2. Install Python
+
+```bash
+brew install python
+```
+
+Check installation:
+
+```bash
+python3 --version
+```
+
+---
+
+### 3. Create the virtual environment
+
+```bash
 mkdir -p ~/.venvs
 python3 -m venv ~/.venvs/audio312
+```
 
-### 2. Activate it
+---
 
+### 4. Activate the environment
+
+```bash
 source ~/.venvs/audio312/bin/activate
+```
 
-### 3. Install dependencies
+---
 
-pip install --upgrade pip
-pip install numpy librosa soundfile scipy
+### 5. Upgrade pip
 
-### 4. Verify installation
+```bash
+python -m pip install --upgrade pip
+```
 
-python -c "import librosa, numpy"
+---
 
+### 6. Install required packages
+
+```bash
+pip install numpy scipy librosa soundfile
+```
+
+---
+
+### 7. Verify installation
+
+```bash
+~/.venvs/audio312/bin/python -c "import numpy, scipy, librosa, soundfile; print('Python environment OK')"
+```
+
+Expected output:
+
+```text
+Python environment OK
+```
+
+---
+
+### ⚠️ Important
+
+Do NOT move or rename this folder:
+
+```text
+~/.venvs/audio312
+```
+
+The AppleScript depends on this exact path.
+
+---
+
+### 🛠 If something doesn't work
+
+You can reinstall everything:
+
+```bash
+rm -rf ~/.venvs/audio312
+python3 -m venv ~/.venvs/audio312
+source ~/.venvs/audio312/bin/activate
+pip install numpy scipy librosa soundfile
+```
+
+---
+
+## 🔒 macOS Permissions (IMPORTANT)
+
+This script needs access to your files and VirtualDJ database.
+
+You must grant **Full Disk Access** to the application running the AppleScript.
+
+### Steps:
+
+1. Open **System Settings**
+2. Go to **Privacy & Security**
+3. Click **Full Disk Access**
+4. Add:
+   - **Script Editor** (if you run the script from it)
+   - OR the compiled **AppleScript app**
+   - OR **Terminal** (if running via Terminal)
+
+5. Restart the application
+
+---
+
+### ⚠️ Important Notes
+
+- Do NOT open **VirtualDJ** during analysis  
+- Always backup your `database.xml` before running the script  
+- Use this tool at your own risk (advanced users only)
 ---
 
 ## AppleScript Python Path
@@ -118,7 +239,7 @@ Make sure to have this kind of Python path:
 Applescript auto detect YOUR_USERNAME :
 property pythonBin : "/Users/" & (short user name of (system info)) & "/.venvs/audio312/bin/python"
 
----
+------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Usage
 
