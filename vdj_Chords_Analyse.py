@@ -442,12 +442,40 @@ def load_audio_mono(audio_path, sr_target):
 
     ext = audio_path.suffix.lower()
 
-    # 🚀 FORCER librosa pour formats compressés
-    if ext in ['.mp3', '.m4a', '.aac', '.mp4', '.mov', '.webm', '.mkv']:
-        import librosa
-        return librosa.load(str(audio_path), sr=sr_target, mono=True)
+    compressed_exts = ['.mp3', '.m4a', '.aac', '.mp4', '.mov', '.webm', '.mkv']
 
-    # ⚡ Fast path pour formats lossless
+    # Compressed audio/video containers → audioread/ffmpeg path, no soundfile warning
+    if ext in compressed_exts:
+        import audioread
+        import librosa
+
+        with audioread.audio_open(str(audio_path)) as f:
+            sr = f.samplerate
+            n_channels = f.channels
+
+            chunks = []
+
+            for buf in f:
+                data = np.frombuffer(buf, dtype=np.int16)
+
+                if n_channels > 1:
+                    data = data.reshape(-1, n_channels)
+                    data = data.mean(axis=1)
+
+                chunks.append(data)
+
+            if not chunks:
+                raise RuntimeError("AUDIOREAD_EMPTY_AUDIO")
+
+            y = np.concatenate(chunks).astype(np.float32) / 32768.0
+
+            if sr != sr_target:
+                y = librosa.resample(y, orig_sr=sr, target_sr=sr_target)
+                sr = sr_target
+
+            return y, sr
+
+    # Lossless / uncompressed audio → soundfile fast path
     try:
         import soundfile as sf
         import librosa
@@ -457,16 +485,19 @@ def load_audio_mono(audio_path, sr_target):
         if getattr(y, 'ndim', 1) > 1:
             y = np.mean(y, axis=1)
 
+        y = y.astype(np.float32)
+
         if sr != sr_target:
-            y = librosa.resample(y.astype(float), orig_sr=sr, target_sr=sr_target)
+            y = librosa.resample(y, orig_sr=sr, target_sr=sr_target)
             sr = sr_target
 
-        return y.astype(float), sr
+        return y, sr
 
     except Exception:
-        # 🔁 fallback sécurité
+        # Final fallback
         import librosa
-        return librosa.load(str(audio_path), sr=sr_target, mono=True)
+        y, sr = librosa.load(str(audio_path), sr=sr_target, mono=True)
+        return y, sr
 
 
 
