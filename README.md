@@ -212,6 +212,12 @@ chmod +x install-python-requirements.sh
 ./install-python-requirements.sh
 ```
 ---
+FFmpeg is recommended for decoding compressed audio and video formats (MP3, AAC, MP4, MOV, WEBM, MKV).
+
+On macOS, basic formats may work without FFmpeg (CoreAudio), but installing FFmpeg ensures full compatibility.
+
+Install with Homebrew:
+brew install ffmpeg
 
 ## 🔒 macOS Permissions (IMPORTANT)
 
