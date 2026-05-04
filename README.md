@@ -271,7 +271,8 @@ CHORD-DETECTION-VIRTUALDJ.scpt
 ---
 
 ## VirtualDJ Usage Notes ⚠️
-- Tracks should already be analyzed by VirtualDJ beforehand (BPM, grid, etc.) 
+
+- Tracks should already be analyzed by VirtualDJ (BPM, grid, etc.) using VirtualDJ 2026 (build 9295 or newer), as this version introduces the updated fluid BeatGrid format required for accurate chord placement.
 
 ### Do not open VirtualDJ during analysis
 
@@ -370,7 +371,8 @@ By using this tool, you agree that:
 - AIFF ✔ (best)
 - WAV ✔
 - FLAC ✔
-- M4A / AAC ⚠️ (slower, less accurate)
+- ALAC ⚠️ (slower analyse)
+- .m4a .mp3 .aac⚠️ (slower analyse)
 
 ---
 
