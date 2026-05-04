@@ -436,22 +436,37 @@ def analyze_wrapper(job):
         except Exception:
             return ('', [], str(e))
 
-
 def load_audio_mono(audio_path, sr_target):
+    import numpy as np
+
+    ext = audio_path.suffix.lower()
+
+    # 🚀 FORCER librosa pour formats compressés
+    if ext in ['.mp3', '.m4a', '.aac']:
+        import librosa
+        return librosa.load(str(audio_path), sr=sr_target, mono=True)
+
+    # ⚡ Fast path pour formats lossless
     try:
-        import numpy as np
         import soundfile as sf
         import librosa
+
         y, sr = sf.read(str(audio_path), always_2d=False)
+
         if getattr(y, 'ndim', 1) > 1:
             y = np.mean(y, axis=1)
+
         if sr != sr_target:
             y = librosa.resample(y.astype(float), orig_sr=sr, target_sr=sr_target)
             sr = sr_target
+
         return y.astype(float), sr
+
     except Exception:
+        # 🔁 fallback sécurité
         import librosa
         return librosa.load(str(audio_path), sr=sr_target, mono=True)
+
 
 
 def analyze_chords(audio_path, beat_info=None):
