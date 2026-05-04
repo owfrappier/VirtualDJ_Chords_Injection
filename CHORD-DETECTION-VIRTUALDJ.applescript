@@ -88,7 +88,9 @@ on run
 		
 		set cmd to quoted form of pythonBin & " " & quoted form of pyPath & " " & quoted form of dbPath & " " & quoted form of audioPath & " " & quoted form of cachePath & " " & quoted form of POI_COLOR & " " & quoted form of searchWord & " " & reanalyseFlag & " " & quoted form of firstLetter
 		
-		set fullCmd to "echo 'VDJ CHORD ANALYSIS V13 - Ctrl+C to STOP' ; " & cmd
+		set fullCmd to "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; echo 'VDJ CHORD ANALYSIS V13 - Ctrl+C to STOP' ; " & cmd
+		
+		
 		
 		tell application "Terminal"
 			activate
