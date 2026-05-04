@@ -17,6 +17,10 @@ else
     echo "Homebrew already installed ✔"
 fi
 
+# Ensure Homebrew is available in PATH for Apple Silicon and Intel Macs
+eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || true
+eval "$(/usr/local/bin/brew shellenv)" 2>/dev/null || true
+
 # ----------------------------
 # 2. Check Python
 # ----------------------------
@@ -31,7 +35,20 @@ echo ""
 python3 --version
 
 # ----------------------------
-# 3. Check virtual environment
+# 3. Check FFmpeg
+# ----------------------------
+if ! command -v ffmpeg >/dev/null 2>&1; then
+    echo "ffmpeg not found. Installing with Homebrew..."
+    brew install ffmpeg
+else
+    echo "ffmpeg already installed ✔"
+fi
+
+echo "FFmpeg path: $(which ffmpeg)"
+echo ""
+
+# ----------------------------
+# 4. Check virtual environment
 # ----------------------------
 if [ -f "$PYTHON_BIN" ]; then
     echo "Virtual environment detected ✔"
@@ -42,15 +59,15 @@ else
 fi
 
 # ----------------------------
-# 4. Check dependencies
+# 5. Check Python dependencies
 # ----------------------------
 echo ""
 echo "Checking Python packages..."
 
 if "$PYTHON_BIN" -c "import numpy, scipy, librosa, soundfile" >/dev/null 2>&1; then
-    echo "All required packages already installed ✔"
+    echo "All required Python packages already installed ✔"
 else
-    echo "Installing missing packages..."
+    echo "Installing missing Python packages..."
 
     source "$VENV_PATH/bin/activate"
 
@@ -59,7 +76,7 @@ else
 fi
 
 # ----------------------------
-# 5. Verify installation
+# 6. Verify installation
 # ----------------------------
 echo ""
 echo "Verifying environment..."
@@ -69,6 +86,11 @@ echo "Verifying environment..."
     exit 1
 }
 
+if ! command -v ffmpeg >/dev/null 2>&1; then
+    echo "ERROR: ffmpeg verification failed"
+    exit 1
+fi
+
 # ----------------------------
 # DONE
 # ----------------------------
@@ -76,5 +98,8 @@ echo ""
 echo "=== Installation complete ==="
 echo "Python path for AppleScript:"
 echo "$PYTHON_BIN"
+echo ""
+echo "FFmpeg path:"
+which ffmpeg
 echo ""
 echo "You can now run the AppleScript."

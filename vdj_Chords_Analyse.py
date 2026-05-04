@@ -27,6 +27,7 @@ FIRST_LETTER = sys.argv[7].lower().strip() if len(sys.argv) > 7 else ''
 
 AUDIO_EXTS = ['.wav','.flac','.aif','.aiff','.mp3','.aac','.m4a','.alac','.webm','.mkv','.mov','.mp4']
 
+
 q = chr(34)
 NL = chr(10)
 
@@ -442,7 +443,7 @@ def load_audio_mono(audio_path, sr_target):
     ext = audio_path.suffix.lower()
 
     # 🚀 FORCER librosa pour formats compressés
-    if ext in ['.mp3', '.m4a', '.aac']:
+    if ext in ['.mp3', '.m4a', '.aac', '.mp4', '.mov', '.webm', '.mkv']:
         import librosa
         return librosa.load(str(audio_path), sr=sr_target, mono=True)
 
