@@ -379,7 +379,7 @@ By using this tool, you agree that:
 - FLAC ✔
 - ALAC ⚠️ (slower analyse)
 - .m4a .mp3 .aac⚠️ (slower analyse)
-- video files (.mov .mp4 .mkw...) 
+- video files (.mov .mp4 .mkw...) (slower analyse)
 ---
 
 ## Tested Environment
