@@ -500,6 +500,7 @@ def load_audio_mono(audio_path, sr_target):
         return y, sr
 
 
+
 def analyze_chords(audio_path, beat_info=None):
     try:
         import numpy as np
@@ -551,13 +552,9 @@ def analyze_chords(audio_path, beat_info=None):
     MAJ7_TRIAD_MARGIN = 0.075
     MICRO_MAJ7_SEC = 0.35
     THIRD_MIN_RATIO = 0.42
-    DIM_REQUIRED_RATIO = 0.36
-    AUG_REQUIRED_RATIO = 0.36
-    DIM_AUG_BOOST = 0.085
-
-    # V14 LOCAL KEY COHERENCE - soft penalty only
-    LOCAL_KEY_WINDOW_SEC = 8.0
-    OUT_OF_KEY_PENALTY = 0.10
+    DIM_REQUIRED_RATIO = 0.46
+    AUG_REQUIRED_RATIO = 0.46
+    DIM_AUG_BOOST = 0.055
 
     def note_name(pc):
         return NOTE_NAMES_FLAT[pc] if PREFER_FLATS else NOTE_NAMES_SHARP[pc]
@@ -630,60 +627,9 @@ def analyze_chords(audio_path, beat_info=None):
     chroma_slow = np.vstack([np.convolve(chroma_fast[i], kernel_slow, mode='same') for i in range(12)])
     bass_smooth = np.vstack([np.convolve(bass_chroma[i], kernel_bass, mode='same') for i in range(12)])
     times = librosa.frames_to_time(np.arange(chroma_fast.shape[1]), sr=sr, hop_length=HOP)
-
-    chord_templates = [
-        ('', [0, 4, 7], 0.96),
-        ('m', [0, 3, 7], 1.00),
-        ('5', [0, 7], 0.72),
-        ('7', [0, 4, 7, 10], 0.90),
-        ('m7', [0, 3, 7, 10], 0.90),
-        ('maj7', [0, 4, 7, 11], 0.75),
-        ('6', [0, 4, 7, 9], 0.88),
-        ('m6', [0, 3, 7, 9], 0.88),
-        ('sus4', [0, 5, 7], 0.86),
-        ('dim', [0, 3, 6], 0.84),
-        ('dim7', [0, 3, 6, 9], 0.82),
-        ('aug', [0, 4, 8], 0.82)
-    ]
-
+    chord_templates = [('',[0,4,7],0.90),('m',[0,3,7],0.90),('5',[0,7],0.72),('7',[0,4,7,10],0.94),('m7',[0,3,7,10],0.94),('maj7',[0,4,7,11],0.80),('6',[0,4,7,9],0.88),('m6',[0,3,7,9],0.88),('sus2',[0,2,7],0.80),('sus4',[0,5,7],0.84),('7sus4',[0,5,7,10],0.84),('dim',[0,3,6],0.95),('dim7',[0,3,6,9],0.82),('aug',[0,4,8],0.80)]
     global_chroma = np.mean(chroma_slow, axis=1)
     likely_roots = list(np.argsort(global_chroma)[-7:])
-
-    # Local key estimation using existing chroma_slow only (fast).
-    major_scale = [0, 2, 4, 5, 7, 9, 11]
-    minor_scale = [0, 2, 3, 5, 7, 8, 10]
-    major_profile = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], dtype=float)
-    minor_profile = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17], dtype=float)
-    major_profile = major_profile / (np.linalg.norm(major_profile) + 1e-9)
-    minor_profile = minor_profile / (np.linalg.norm(minor_profile) + 1e-9)
-
-    local_key_roots = []
-    local_key_modes = []
-    key_half_win = max(1, int((LOCAL_KEY_WINDOW_SEC * sr / HOP) * 0.5))
-    n_frames = chroma_slow.shape[1]
-
-    for ki in range(n_frames):
-        a = max(0, ki - key_half_win)
-        b = min(n_frames, ki + key_half_win + 1)
-        kc = np.mean(chroma_slow[:, a:b], axis=1)
-        kc = kc / (np.linalg.norm(kc) + 1e-9)
-        best_key_score = -999.0
-        best_key_root = 0
-        best_key_mode = 'major'
-        for kr in range(12):
-            maj_score = float(np.dot(kc, np.roll(major_profile, kr)))
-            min_score = float(np.dot(kc, np.roll(minor_profile, kr)))
-            if maj_score > best_key_score:
-                best_key_score = maj_score
-                best_key_root = kr
-                best_key_mode = 'major'
-            if min_score > best_key_score:
-                best_key_score = min_score
-                best_key_root = kr
-                best_key_mode = 'minor'
-        local_key_roots.append(best_key_root)
-        local_key_modes.append(best_key_mode)
-
     labels = []
     scores = []
     for i in range(chroma_slow.shape[1]):
@@ -696,87 +642,34 @@ def analyze_chords(audio_path, beat_info=None):
         for root in range(12):
             for suffix, intervals, weight in chord_templates:
                 root_e = float(vec[root]); maj3_e = float(vec[(root+4)%12]); min3_e = float(vec[(root+3)%12]); fifth_e = float(vec[(root+7)%12]); dim5_e = float(vec[(root+6)%12]); aug5_e = float(vec[(root+8)%12]); dom7_e = float(vec[(root+10)%12]); maj7_e = float(vec[(root+11)%12])
-
-                if suffix == '':
-                    if maj3_e < root_e * THIRD_MIN_RATIO:
-                        continue
-
-                    # Si la tierce mineure est presque aussi forte → élimine
-                    if min3_e > maj3_e * 0.78:
-                        continue
-
-                    # Si la différence est trop faible → ambigu → skip
-                    if abs(maj3_e - min3_e) < root_e * 0.08:
-                        continue
-
-                if suffix == 'm' and min3_e < root_e * THIRD_MIN_RATIO:
-                    continue
-
+                if suffix == '' and maj3_e < root_e * THIRD_MIN_RATIO: continue
+                if suffix == 'm' and min3_e < root_e * THIRD_MIN_RATIO: continue
                 if suffix == 'maj7':
-                    if maj3_e < root_e * THIRD_MIN_RATIO:
-                        continue
-                    if maj7_e < max(root_e, maj3_e) * MAJ7_REQUIRED_RATIO:
-                        continue
-                    if maj7_e > root_e * 1.15:
-                        continue
-                    upper_root = (root + 1) % 12
-                    upper_root_e = float(vec[upper_root])
-                    upper_min3_e = float(vec[(upper_root + 3) % 12])
-                    upper_dim5_e = float(vec[(upper_root + 6) % 12])
-                    upper_dim7_e = float(vec[(upper_root + 9) % 12])
-                    if (
-                            upper_root_e > root_e * 0.55
-                            and upper_min3_e > root_e * 0.45
-                            and upper_dim5_e > root_e * 0.45
-                            and upper_dim7_e > root_e * 0.35
-                    ):
-                        continue
-
+                    if maj3_e < root_e * THIRD_MIN_RATIO: continue
+                    if maj7_e < max(root_e, maj3_e) * MAJ7_REQUIRED_RATIO: continue
+                    if maj7_e > root_e * 1.15: continue
                 if suffix == '7':
                     if maj3_e < root_e * THIRD_MIN_RATIO: continue
                     if dom7_e < max(root_e, maj3_e) * DOM7_REQUIRED_RATIO: continue
-
                 if suffix == 'm7':
                     if min3_e < root_e * THIRD_MIN_RATIO: continue
                     if dom7_e < max(root_e, min3_e) * M7_REQUIRED_RATIO: continue
-                    upper_root = (root + 1) % 12
-                    upper_root_e = float(vec[upper_root])
-                    upper_min3_e = float(vec[(upper_root + 3) % 12])
-                    upper_fifth_e = float(vec[(upper_root + 7) % 12])
-                    if (
-                            upper_root_e > root_e * 0.65
-                            and upper_min3_e > root_e * 0.45
-                            and upper_fifth_e > root_e * 0.45
-                    ):
-                        continue
-
                 if suffix == '6' and maj3_e < root_e * THIRD_MIN_RATIO: continue
                 if suffix == 'm6' and min3_e < root_e * THIRD_MIN_RATIO: continue
-
                 if suffix == 'dim':
-                    if min3_e < root_e * 0.32:
-                        continue
-                    if dim5_e < max(root_e, min3_e) * 0.32:
-                        continue
-                    if fifth_e > dim5_e * 1.15:
-                        continue
-
+                    if min3_e < root_e * THIRD_MIN_RATIO: continue
+                    if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
+                    if fifth_e > dim5_e * 0.95: continue
                 if suffix == 'dim7':
-                    dim7_e = float(vec[(root + 9) % 12])
-                    if min3_e < root_e * 0.32:
-                        continue
-                    if dim5_e < max(root_e, min3_e) * 0.32:
-                        continue
-                    if dim7_e < max(root_e, min3_e) * 0.30:
-                        continue
-                    if fifth_e > dim5_e * 1.15:
-                        continue
-
+                    dim7_e = float(vec[(root+9)%12])
+                    if min3_e < root_e * THIRD_MIN_RATIO: continue
+                    if dim5_e < max(root_e, min3_e) * DIM_REQUIRED_RATIO: continue
+                    if dim7_e < max(root_e, min3_e) * 0.40: continue
+                    if fifth_e > dim5_e * 0.95: continue
                 if suffix == 'aug':
                     if maj3_e < root_e * THIRD_MIN_RATIO: continue
                     if aug5_e < max(root_e, maj3_e) * AUG_REQUIRED_RATIO: continue
-                    if fifth_e > aug5_e * 1.15: continue
-
+                    if fifth_e > aug5_e * 0.95: continue
                 tmpl = np.zeros(12)
                 for interval in intervals: tmpl[(root + interval) % 12] = 1.0
                 tmpl[root] += ROOT_BONUS; tmpl[(root+7)%12] += FIFTH_BONUS
@@ -785,111 +678,8 @@ def analyze_chords(audio_path, beat_info=None):
                 tmpl = tmpl / (np.linalg.norm(tmpl) + 1e-9)
                 score = float(np.dot(vec, tmpl)) * weight
                 if suffix.startswith('m'): score += MINOR_BIAS
-
-                # ==============================
-
-                # 🎯 TONALITÉ LOCALE (EXISTANTE)
-
-                # ==============================
-
-                try:
-
-                    key_root = local_key_roots[i]
-
-                    key_mode = local_key_modes[i]
-
-                    if key_mode == 'major':
-
-                        key_scale = [(key_root + x) % 12 for x in [0, 2, 4, 5, 7, 9, 11]]
-
-                    else:
-
-                        key_scale = [(key_root + x) % 12 for x in [0, 2, 3, 5, 7, 8, 10]]
-
-                    # pénalité globale hors tonalité
-
-        
-
-                    chord_pcs_for_key = [(root + x) % 12 for x in intervals]
-
-                    # Ne pas arbitrer dim / dim7 / aug par la tonalité locale
-                    if suffix not in ('dim', 'dim7', 'aug'):
-                        out_count = sum(1 for pc in chord_pcs_for_key if pc not in key_scale)
-                        score -= out_count * OUT_OF_KEY_PENALTY
-
-                    # =========================================
-
-                    # 🔥 AJOUT : ARBITRAGE MAJEUR / MINEUR
-
-                    # =========================================
-
-                    if key_mode == 'minor':
-
-                        # pénalise les majeurs hors gamme (ex: D majeur en A mineur)
-
-                        if suffix == '' and ((root + 4) % 12) not in key_scale:
-                            score -= 0.08
-
-                    if key_mode == 'major':
-
-                        # pénalise mineur hors gamme
-
-                        if suffix == 'm' and ((root + 3) % 12) not in key_scale:
-                            score -= 0.06
-
-                except Exception:
-
-                    pass
-
-                if suffix == 'sus4':
-                    sus4_e = float(vec[(root + 5) % 12])
-                    tritone_e = float(vec[(root + 6) % 12])
-                    maj3_e = float(vec[(root + 4) % 12])
-                    min3_e = float(vec[(root + 3) % 12])
-                    if sus4_e < root_e * 0.55:
-                        continue
-                    if tritone_e > sus4_e:
-                        continue
-                    if max(maj3_e, min3_e) > sus4_e * 0.75:
-                        continue
-
-                if suffix == 'm' and dim5_e > fifth_e * 1.05:
-                    score -= 0.10
-
-                if suffix in ('dim', 'dim7'):
-                    if min3_e > root_e * 0.32 and dim5_e > root_e * 0.32:
-                        score += 0.12
-                    else:
-                        score += DIM_AUG_BOOST
-
-                if suffix == 'aug':
-                    score += DIM_AUG_BOOST
-
+                if suffix in ('dim','dim7','aug'): score += DIM_AUG_BOOST
                 chord_pcs = [(root+x)%12 for x in intervals]
-                outside = sum(vec[pc] for pc in range(12) if pc not in chord_pcs)
-
-                score -= outside * OUTSIDE_NOTE_PENALTY
-
-                if root in likely_roots:
-                    score += TONALITY_ROOT_BONUS
-
-                # Local-key coherence: soft penalty for out-of-key chord tones.
-                # Dominant/diminished chords get half penalty because they are common functional exceptions.
-                try:
-                    key_root = local_key_roots[i]
-                    key_mode = local_key_modes[i]
-                    if key_mode == 'major':
-                        key_scale = set((key_root + x) % 12 for x in major_scale)
-                    else:
-                        key_scale = set((key_root + x) % 12 for x in minor_scale)
-                    out_of_key_count = sum(1 for pc in chord_pcs if pc not in key_scale)
-                    if suffix in ('dim', 'dim7', '7'):
-                        score -= OUT_OF_KEY_PENALTY * 0.5 * out_of_key_count
-                    else:
-                        score -= OUT_OF_KEY_PENALTY * out_of_key_count
-                except Exception:
-                    pass
-
                 outside = sum(vec[pc] for pc in range(12) if pc not in chord_pcs)
                 score -= outside * OUTSIDE_NOTE_PENALTY
                 if root in likely_roots: score += TONALITY_ROOT_BONUS
